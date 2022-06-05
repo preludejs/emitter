@@ -1,6 +1,6 @@
 {
   "name": "@prelude/emitter",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Emitter module.",
   "type": "module",
   "main": "./cjs/index.js",
