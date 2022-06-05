@@ -1,0 +1,7 @@
+*.js
+cjs
+mjs
+node_modules
+configurationCache.log
+dryrun.log
+targets.log
