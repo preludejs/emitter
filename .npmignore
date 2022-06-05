@@ -1,4 +1,4 @@
 .github
 .vscode
 jest.config.json
-test
+*.test.*
