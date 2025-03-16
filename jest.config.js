@@ -23,8 +23,11 @@ export default {
   extensionsToTreatAsEsm: [ '.ts', '.tsx' ],
   coverageProvider: 'v8',
   coverageReporters: [
-    'text'
+    'text',
+    'lcov'
   ],
+  coverageDirectory: '../coverage',
+  collectCoverage: true,
   reporters: [
     'default'
   ]

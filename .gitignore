@@ -5,3 +5,4 @@ dts
 mjs
 node_modules
 targets.log
+coverage
