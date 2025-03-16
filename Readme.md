@@ -25,10 +25,10 @@ import * as Emitter from '@prelude/emitter'
 
 // Define your events
 type MyEvents = Emitter.Events & {
-  start: { timestamp: number },
-  progress: { percent: number },
-  complete: { result: string },
-  error: Error
+  start: [ { timestamp: number } ],
+  progress: [ progress: { percent: number } ],
+  complete: [ { result: string } ],
+  error: [ Error ]
 } & Emitter.Events
 
 // Create a typed emitter
@@ -51,8 +51,8 @@ emitter.onceIf('progress', _ => _.percent > 50, () => {
 
 // Promise-based waiting
 try {
-  const result = await emitter.eventually('complete', 5_000) // 5s timeout
-  console.log(`Got result: ${result.result}`)
+  const [ { result } ] = await emitter.eventually('complete', 5_000) // 5s timeout
+  console.log(`Got result: ${result}`)
 } catch (err) {
   console.error('Timed out waiting for completion')
 }
