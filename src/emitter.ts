@@ -58,12 +58,12 @@ export class Emitter<T extends Events> implements Interface<T> {
    * Triggers an event, calling all registered listeners with the provided value.
    * Errors in listeners are caught and logged without interrupting other listeners.
    * @param name - The event name to emit
-   * @param value - The payload to pass to listeners
+   * @param values - The payload to pass to listeners
    */
-  emit<K extends keyof T>(name: K, value: T[K]) {
+  emit<K extends keyof T>(name: K, ...values: T[K]) {
     for (const listener of this.listeners(name) ?? []) {
       try {
-        listener(value)
+        listener(...values)
       } catch (err) {
         if (name !== 'error' && this.hasListener('error')) {
           this.emit('error', err)
@@ -97,10 +97,7 @@ export class Emitter<T extends Events> implements Interface<T> {
         .reduce((n, listener) => n + this.off(maybeName, listener), 0)
     }
     if (listeners.delete(maybeListener)) {
-      this.emit('removeListener', {
-        name: maybeName,
-        listener: maybeListener as Listener
-      })
+      this.emit('removeListener', maybeName, maybeListener as Listener)
       if (listeners.size === 0) {
         this._listeners.delete(maybeName)
       }
@@ -127,10 +124,7 @@ export class Emitter<T extends Events> implements Interface<T> {
       throw Err.error('duplicate', `Expected listener to not be already registered for ${String(name)} event.`)
     }
     listeners.add(listener as Listener)
-    this.emit('newListener', {
-      name,
-      listener: listener as Listener
-    })
+    this.emit('newListener', name, listener as Listener)
     const n = listeners.size
     if (n > errorLogThreshold) {
       log.error(`Expected less than ${errorLogThreshold} listeners for ${String(name)} event, got ${n}.`)
@@ -147,10 +141,10 @@ export class Emitter<T extends Events> implements Interface<T> {
    * @returns Unregister function to remove the listener before it's triggered
    */
   onceIf<K extends keyof T>(name: K, predicate: Predicate<T[K]>, listener: Listener<T[K]>) {
-    const off = this.on(name, value => {
-      if (predicate(value)) {
+    const off = this.on(name, (...values) => {
+      if (predicate(...values)) {
         off()
-        listener(value)
+        listener(...values)
       }
     })
     return off
@@ -189,12 +183,12 @@ export class Emitter<T extends Events> implements Interface<T> {
         off = null
         reject(Err.error('timeout', `Timeout of ${timeout} reached while waiting for ${String(name)} event.`))
       })
-      off = this.on(name, value => {
-        if (predicate(value)) {
+      off = this.on(name, (...values) => {
+        if (predicate(...values)) {
           off = null
           offTimeout?.()
           offTimeout = null
-          resolve(value)
+          resolve(values)
         }
       })
     })

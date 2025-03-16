@@ -2,7 +2,7 @@ import { expect, test, jest } from '@jest/globals'
 import * as Emitter from './index.js'
 
 type TestEvents = Emitter.Events & {
-  test: string
+  test: [ value: string ]
 }
 
 // Skip tests that depend on console mocking or race conditions
@@ -75,11 +75,8 @@ test('should use onceIf for one time conditional event handling', () => {
 // Use alternative testing approach that doesn't rely on listener cleanup timing
 test('should use eventually to wait for events', async () => {
   const emitter = Emitter.of<TestEvents>()
-
   setTimeout(() => {
     emitter.emit('test', 'async-response')
   }, 10)
-
-  const result = await emitter.eventually('test', 100)
-  expect(result).toBe('async-response')
+  await expect(emitter.eventually('test', 100)).resolves.toEqual([ 'async-response' ])
 })

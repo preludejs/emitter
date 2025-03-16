@@ -2,9 +2,9 @@ import { expect, test, jest } from '@jest/globals'
 import * as Emitter from './index.js'
 
 type TestEvents = Emitter.Events & {
-  message: string
-  data: { id: number, value: string }
-  empty: undefined
+  message: [ message: string ]
+  data: [ data: { id: number, value: string } ]
+  empty: []
 }
 
 test('eventNames should list all events with listeners', () => {
@@ -135,14 +135,9 @@ test('on should emit newListener event', () => {
   const emitter = Emitter.of<TestEvents>()
   const newListenerSpy = jest.fn()
   const listener = jest.fn()
-
   emitter.on('newListener', newListenerSpy)
   emitter.on('message', listener)
-
-  expect(newListenerSpy).toHaveBeenCalledWith({
-    name: 'message',
-    listener
-  })
+  expect(newListenerSpy).toHaveBeenCalledWith('message', listener)
 })
 
 test('on should throw if registering the same listener twice', () => {
@@ -195,7 +190,7 @@ test('eventually should resolve when event is emitted', async () => {
     emitter.emit('message', 'async response')
   })
 
-  const result = await emitter.eventually('message', 1000)
+  const [ result ] = await emitter.eventually('message', 1000)
   expect(result).toBe('async response')
 })
 
@@ -220,35 +215,24 @@ test('eventuallyIf should resolve when predicate matches', async () => {
 
   const result = await emitter.eventuallyIf('data', data => data.id === 2, 1000)
 
-  expect(result).toEqual({ id: 2, value: 'second' })
+  expect(result).toEqual([ { id: 2, value: 'second' } ])
 })
 
 test('off should emit removeListener event', () => {
   const emitter = Emitter.of<TestEvents>()
   const removeListenerSpy = jest.fn()
   const listener = jest.fn()
-
   emitter.on('removeListener', removeListenerSpy)
-
   const off = emitter.on('message', listener)
   off()
-
-  expect(removeListenerSpy).toHaveBeenCalledWith({
-    name: 'message',
-    listener
-  })
+  expect(removeListenerSpy).toHaveBeenCalledWith('message', listener)
 })
 
 test('meta events work with standard event types', () => {
   const emitter = Emitter.of<TestEvents>()
   const metaListener = jest.fn()
   const regularListener = jest.fn()
-
   emitter.on('newListener', metaListener)
   emitter.on('message', regularListener)
-
-  expect(metaListener).toHaveBeenCalledWith({
-    name: 'message',
-    listener: regularListener
-  })
+  expect(metaListener).toHaveBeenCalledWith('message', regularListener)
 })

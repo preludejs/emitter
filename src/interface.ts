@@ -30,9 +30,9 @@ export interface Interface<T extends Events> {
   /**
    * Triggers an event, calling all registered listeners with the provided value.
    * @param name - The event name to emit
-   * @param value - The payload to pass to listeners
+   * @param values - The payload to pass to listeners
    */
-  emit<K extends keyof T>(name: K, value: T[K]): void
+  emit<K extends keyof T>(name: K, ...values: T[K]): void
 
   /**
    * Removes one or more event listeners.
